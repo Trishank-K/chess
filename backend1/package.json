@@ -1,0 +1,19 @@
+{
+  "name": "backend1",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "start": "bun --watch ./index.ts"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@types/ws": "^8.5.13",
+    "chess.js": "^1.0.0",
+    "ws": "^8.18.0"
+  }
+}
