@@ -29,11 +29,15 @@ export class Game {
       })
     );
   }
+  getGameState() {
+    return this.board.board();
+  }
 
   makeMove(socket: WebSocket, move: { from: string; to: string }) {
 
     try {
-      this.board.move(move);
+      const m = this.board.move(move);
+      return m;
     } catch (e) {
       console.log("ERROR: ",e)
       return;

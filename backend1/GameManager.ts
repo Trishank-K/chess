@@ -3,13 +3,13 @@ import { INIT_GAME, MOVE } from "./messages";
 import { Game } from "./Game";
 export class GameManager {
   private games: Game[];
-  private pendingUser: WebSocket|null;
+  private pendingUser: WebSocket | null;
   private users: WebSocket[];
 
   constructor() {
     this.games = [];
     this.pendingUser = null;
-    this.users = []
+    this.users = [];
   }
 
   addUser(socket: WebSocket) {
@@ -25,17 +25,28 @@ export class GameManager {
 
       if (message.type === INIT_GAME) {
         if (this.pendingUser) {
-            const game = new Game(this.pendingUser,socket)
-            this.games.push(game);
-            this.pendingUser = null;
+          const game = new Game(this.pendingUser, socket);
+          this.games.push(game);
+          this.pendingUser = null;
         } else {
-          this.pendingUser = socket; 
+          this.pendingUser = socket;
         }
       }
-      if(message.type === MOVE) {
-        const game = this.games.find(game => game.player1 === socket || game.player2 === socket)
-        game?.makeMove(socket,message.move)
-    }
+      if (message.type === MOVE) {
+        const game = this.games.find(
+          (game) => game.player1 === socket || game.player2 === socket
+        );
+        game?.makeMove(socket, message.move);
+        const gameState = game?.getGameState(); // Assume this returns the board state
+        const messagePayload = JSON.stringify({
+          type: "UPDATE_STATE",
+          board: gameState,
+        });
+        
+        console.log(messagePayload);
+        game?.player1.send(messagePayload);
+        game?.player2.send(messagePayload);
+      }
     });
   }
 }

@@ -43,7 +43,7 @@ export const Game = () => {
       <div className="pt-8 w-full">
         <div className="grid grid-cols-6 gap-4 ">
           <div className="flex justify-center  col-span-4">
-            <ChessBoard chess={chess} board={board} />
+            <ChessBoard chess={chess} socket = {socket} />
           </div>
           <div className="flex items-center justify-center col-span-2 ">
             <Button

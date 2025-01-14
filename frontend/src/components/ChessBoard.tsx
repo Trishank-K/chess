@@ -12,6 +12,7 @@ import Queen_White from "../assets/Queen_White.png";
 import King_Black from "../assets/King_Black.png";
 import King_White from "../assets/King_White.png";
 import { useEffect, useState } from "react";
+import { MOVE } from "../screens/Game";
 
 const pieceImages: Record<string, string> = {
   p_b: Pawn_Black,
@@ -29,49 +30,59 @@ const pieceImages: Record<string, string> = {
 };
 
 export const ChessBoard = ({
-  board,
   chess,
+  socket,
 }: {
-  board: ({
-    square: Square;
-    type: PieceSymbol;
-    color: Color;
-  } | null)[][];
   chess: Chess;
+  socket: WebSocket;
 }) => {
-  const [from, setFrom] = useState<Square | undefined>();
-  const [to, setTo] = useState<Square | undefined>();
+  const [from, setFrom] = useState<Square | null>();
   const [attacks, setAttacks] = useState<string[] | null>();
+  const [boardState, setBoardState] = useState(chess.board());
 
   useEffect(() => {
     if (from) {
-      console.log(from);
       const possibleMoves = chess.moves({ square: from });
-      console.log("possibleMoves: ", possibleMoves);
-      setAttacks(possibleMoves);
+      const modifiedMoves = possibleMoves.map((move) => move.slice(-2));
+      setAttacks(modifiedMoves);
     } else {
-      setAttacks(undefined); // Clear attacks when `from` is cleared
+      setAttacks(undefined);
     }
   }, [from, chess]);
 
+  useEffect(() => {
+    socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "UPDATE_STATE") {
+        console.log(message);
+        setBoardState(message.board);
+      }
+    };
+  }, [socket, chess]);
+
   return (
     <div className="text-black">
-      {board.map((row, i) => (
+      {boardState.map((row, i) => (
         <div key={i} className="flex">
           {row.map((square, j) => {
-          let squareCoords = indexToChess(i,j);
-          const pieceKey = square ? `${square.type}_${square.color}` : null;
-          const isUnderAttack = attacks?.includes(squareCoords);
-          console.log(squareCoords,isUnderAttack)
-
+            let squareCoords = indexToChess(i, j);
+            const pieceKey = square ? `${square.type}_${square.color}` : null;
+            const isUnderAttack = attacks?.includes(squareCoords);
             return (
               <div
                 key={j}
                 onClick={() => {
-                  if (from) {
-                    setTo(square?.square);
-                  } else {
-                    setFrom(square?.square);
+                  if (from && attacks?.includes(squareCoords)) {
+                    socket.send(
+                      JSON.stringify({
+                        type: MOVE,
+                        move: { from, to: squareCoords },
+                      })
+                    );
+                    setFrom(null);
+                    setAttacks(null);
+                  } else if (square) {
+                    setFrom(square.square);
                   }
                 }}
                 className={`w-16 h-16 flex justify-center items-center ${
@@ -96,9 +107,9 @@ export const ChessBoard = ({
   );
 };
 
-function indexToChess(i:number, j:number) {
-  const file = String.fromCharCode('a'.charCodeAt(0) + j); // Convert column index to file
-  const rank = 8 - i; // Convert row index to rank
+function indexToChess(i: number, j: number) {
+  const file = String.fromCharCode("a".charCodeAt(0) + j);
+  const rank = 8 - i;
 
   return `${file}${rank}`;
 }
