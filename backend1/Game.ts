@@ -37,7 +37,6 @@ export class Game {
 
     try {
       const m = this.board.move(move);
-      return m;
     } catch (e) {
       console.log("ERROR: ",e)
       return;

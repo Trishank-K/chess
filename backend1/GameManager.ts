@@ -37,7 +37,7 @@ export class GameManager {
           (game) => game.player1 === socket || game.player2 === socket
         );
         game?.makeMove(socket, message.move);
-        const gameState = game?.getGameState(); // Assume this returns the board state
+        const gameState = game?.getGameState(); 
         const messagePayload = JSON.stringify({
           type: "UPDATE_STATE",
           board: gameState,

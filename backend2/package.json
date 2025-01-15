@@ -1,0 +1,16 @@
+{
+  "name": "backend2",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@types/ws": "^8.5.13",
+    "chess.js": "^1.0.0",
+    "ws": "^8.18.0"
+  }
+}

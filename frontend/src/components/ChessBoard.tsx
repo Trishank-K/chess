@@ -1,4 +1,4 @@
-import { Chess, Color, PieceSymbol, Square } from "chess.js";
+import { Color, PieceSymbol, Square } from "chess.js";
 import Pawn_Black from "../assets/Pawn_Black.png";
 import Pawn_White from "../assets/Pawn_White.png";
 import Rook_Black from "../assets/Rook_Black.png";
@@ -12,7 +12,7 @@ import Queen_White from "../assets/Queen_White.png";
 import King_Black from "../assets/King_Black.png";
 import King_White from "../assets/King_White.png";
 import { useEffect, useState } from "react";
-import { MOVE } from "../screens/Game";
+import { MOVE, MOVES } from "../screens/Game";
 
 const pieceImages: Record<string, string> = {
   p_b: Pawn_Black,
@@ -30,25 +30,19 @@ const pieceImages: Record<string, string> = {
 };
 
 export const ChessBoard = ({
-  chess,
+  board,
   socket,
 }: {
-  chess: Chess;
+  board: ({
+    square: Square;
+    type: PieceSymbol;
+    color: Color;
+  } | null)[][];
   socket: WebSocket;
 }) => {
   const [from, setFrom] = useState<Square | null>();
   const [attacks, setAttacks] = useState<string[] | null>();
-  const [boardState, setBoardState] = useState(chess.board());
-
-  useEffect(() => {
-    if (from) {
-      const possibleMoves = chess.moves({ square: from });
-      const modifiedMoves = possibleMoves.map((move) => move.slice(-2));
-      setAttacks(modifiedMoves);
-    } else {
-      setAttacks(undefined);
-    }
-  }, [from, chess]);
+  const [boardState, setBoardState] = useState(board);
 
   useEffect(() => {
     socket.onmessage = (event) => {
@@ -56,9 +50,11 @@ export const ChessBoard = ({
       if (message.type === "UPDATE_STATE") {
         console.log(message);
         setBoardState(message.board);
+      } else if (message.type === MOVES) {
+        setAttacks(message.payload);
       }
     };
-  }, [socket, chess]);
+  }, [socket, board]);
 
   return (
     <div className="text-black">
@@ -83,6 +79,12 @@ export const ChessBoard = ({
                     setAttacks(null);
                   } else if (square) {
                     setFrom(square.square);
+                    socket.send(
+                      JSON.stringify({
+                        type: MOVES,
+                        payload: squareCoords,
+                      })
+                    );
                   }
                 }}
                 className={`w-16 h-16 flex justify-center items-center ${
