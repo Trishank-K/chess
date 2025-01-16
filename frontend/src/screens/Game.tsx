@@ -23,10 +23,11 @@ export const Game = () => {
   if (!socket) return <div>Connecting ...</div>;
   socket.onmessage = (event) => {
     const message = JSON.parse(event.data);
+    console.log("message",message);
     if (message.type === INIT_GAME) {
       setFindUser(false);
     }
-    if (message.type === BOARD) {
+    else if (message.type === BOARD) {
       setBoard(message.payload);
     }
   };

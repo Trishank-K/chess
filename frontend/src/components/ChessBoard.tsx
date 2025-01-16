@@ -47,11 +47,13 @@ export const ChessBoard = ({
   useEffect(() => {
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      if (message.type === "UPDATE_STATE") {
-        console.log(message);
-        setBoardState(message.board);
+      console.log("message2",message);
+      if (message.type === MOVE) {
+        setBoardState(message.payload);
       } else if (message.type === MOVES) {
-        setAttacks(message.payload);
+        const moves: string[] = message.payload
+        const modifiedMoves = moves.map((move)=>move.slice(-2))
+        setAttacks(modifiedMoves)
       }
     };
   }, [socket, board]);
@@ -72,7 +74,7 @@ export const ChessBoard = ({
                     socket.send(
                       JSON.stringify({
                         type: MOVE,
-                        move: { from, to: squareCoords },
+                        payload: { from, to: squareCoords },
                       })
                     );
                     setFrom(null);

@@ -13,7 +13,6 @@ wss.on("connection", (ws) => {
     if (message.type === INIT_GAME) {
       Game.addUser(ws, parseInt(message.payload));
     } else {
-      console.log("Play Hit: ", message);
       Game.playGame(ws, message);
     }
   });

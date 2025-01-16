@@ -9,13 +9,14 @@ export class Game {
   private TimeLimit: number;
   private timers: { [key: string]: ReturnType<typeof setTimeout> | null };
   private remainingTime: { [key: string]: number };
+  private turn: WebSocket | null;
 
   constructor(player1: WebSocket, player2: WebSocket, TimeLimit: number) {
     this.player1 = player1;
     this.player2 = player2;
     this.board = new Chess();
     this.TimeLimit = TimeLimit;
-
+    this.turn = player1;
     this.remainingTime = { White: TimeLimit * 1000, Black: TimeLimit * 1000 };
     this.timers = { White: null, Black: null };
 
@@ -100,6 +101,7 @@ export class Game {
   }
 
   possibleMoves(player: WebSocket, square: Square) {
+    if (player !== this.turn) return;
     player.send(
       JSON.stringify({
         type: MOVES,
@@ -109,8 +111,10 @@ export class Game {
   }
 
   makeMove(player: WebSocket, move: { from: string; to: string }) {
+    if (player !== this.turn) return;
     try {
       const makeMove = this.board.move(move);
+      this.turn = this.turn === this.player1 ? this.player2 : this.player1;
       if (!makeMove) throw new Error("Illegal Move");
 
       this.player1?.send(

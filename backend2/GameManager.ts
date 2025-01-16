@@ -56,7 +56,6 @@ export class GameManager {
     if (message.type === MOVE) {
       game?.makeMove(socket, message.payload);
     } else if (message.type === MOVES) {
-      console.log("Move Hit");
       game?.possibleMoves(socket, message.payload);
     } else if (message.type === BOARD) {
       game?.sendBoard();
