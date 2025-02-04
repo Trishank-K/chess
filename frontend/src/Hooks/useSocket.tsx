@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-const WS_URL = "ws://20.244.91.156:8080/";
+const WS_URL = "https://chess-backend-hk5g.onrender.com";
 
 export const useSocket = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);

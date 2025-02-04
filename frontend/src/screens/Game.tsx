@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "../components/Button";
 import { ChessBoard } from "../components/ChessBoard";
 import { useSocket } from "../Hooks/useSocket";
-import { Chess, Color, PieceSymbol, Square } from "chess.js";
+import { Color, PieceSymbol, Square } from "chess.js";
 
 export const MOVES = "moves";
 export const INIT_GAME = "init_game";
